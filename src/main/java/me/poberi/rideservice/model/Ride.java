@@ -1,0 +1,42 @@
+package me.poberi.rideservice.model;
+
+import jakarta.persistence.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import lombok.*;
+import org.locationtech.jts.geom.Point;
+
+
+@Entity
+@Table(name = "ride")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Ride {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Long driverId;
+
+    @Column(columnDefinition = "geometry(Point, 4326)")
+    private Point startLocation;
+
+    @Column(columnDefinition = "geometry(Point, 4326)")
+    private Point endLocation;
+
+    @ElementCollection
+    private List<Long> passengerIds;
+
+    private LocalDateTime rideTime;
+}
