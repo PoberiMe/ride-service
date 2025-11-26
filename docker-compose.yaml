@@ -1,15 +1,13 @@
 services:
-  postgres:
-    image: postgres:16
-    container_name: ride_service_db
+  postgis:
+    platform: linux/amd64
+    image: postgis/postgis
+    restart: always
     environment:
       POSTGRES_DB: rides
-      POSTGRES_USER: admin
+      POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     ports:
       - "5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
+      - .data/postgis:/var/lib/postgresql/data

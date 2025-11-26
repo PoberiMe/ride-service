@@ -3,6 +3,7 @@ package me.poberi.rideservice.service;
 import lombok.RequiredArgsConstructor;
 import me.poberi.rideservice.dto.RideRequest;
 import me.poberi.rideservice.model.Ride;
+import me.poberi.rideservice.repository.RideRepository;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -13,28 +14,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RideService {
 
+    private final RideRepository rideRepository;
+
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     public void createRide(RideRequest request) {
+        System.out.println(request);
 
-        // Convert to Point
-        Point start = geometryFactory.createPoint(
-                new Coordinate(request.startLocation().longitude(), request.startLocation().latitude())
-        );
+        Point p = geometryFactory.createPoint(new Coordinate(0.111, 0.222));
 
-        Point end = geometryFactory.createPoint(
-                new Coordinate(request.endLocation().longitude(), request.endLocation().latitude())
-        );
+        System.out.println(p);
 
-        Ride ride = Ride.builder()
-                .driverId(request.driverId())
-                .startLocation(start)
-                .endLocation(end)
-                .passengerIds(request.passengerIds())
-                .rideTime(request.rideTime())
-                .build();
-
-        // repository.save(ride);
-        System.out.println(ride);
+        //rideRepository.save(ride);
     }
 }
