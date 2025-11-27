@@ -29,7 +29,9 @@ public class Ride {
     private Long driverId;
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point startLocation;
-//    @ElementCollection
-//    private List<Long> passengerIds;
-//    private LocalDateTime rideTime;
+    @Column(columnDefinition = "geometry(Point, 4326)")
+    private Point endLocation;
+    @ElementCollection
+    private List<Long> passengerIds;
+    private LocalDateTime rideTime;
 }
