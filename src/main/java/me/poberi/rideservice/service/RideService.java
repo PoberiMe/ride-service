@@ -1,7 +1,9 @@
 package me.poberi.rideservice.service;
 
 import lombok.RequiredArgsConstructor;
+import me.poberi.rideservice.dto.Location;
 import me.poberi.rideservice.dto.RideRequest;
+import me.poberi.rideservice.dto.RideResponse;
 import me.poberi.rideservice.model.Ride;
 import me.poberi.rideservice.repository.RideRepository;
 import org.locationtech.jts.geom.Coordinate;
@@ -9,6 +11,8 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +39,29 @@ public class RideService {
         ride.setPassengerIds(request.passengerIds());
         ride.setRideTime(request.rideTime());
 
-        System.out.println(ride);
-        int a = 12;
         rideRepository.save(ride);
+    }
+
+    public List<RideResponse> getAllRides() {
+        List<Ride> rides = rideRepository.findAll();
+
+        return rides.stream().map(this::mapToRideResponse).toList();
+    }
+
+    private RideResponse mapToRideResponse(Ride ride) {
+        return RideResponse.builder()
+                .id(ride.getId())
+                .driverId(ride.getDriverId())
+                .startLocation(toLocation(ride.getStartLocation()))
+                .endLocation(toLocation(ride.getEndLocation()))
+                .passengerIds(ride.getPassengerIds())
+                .rideTime(ride.getRideTime())
+                .creationTime(ride.getCreationTime())
+                .build();
+    }
+
+    private Location toLocation(Point point) {
+        if (point == null) return null;
+        return new Location(point.getY(), point.getX()); // lat = Y, lon = X
     }
 }

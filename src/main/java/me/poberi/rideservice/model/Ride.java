@@ -22,7 +22,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Ride {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,4 +33,5 @@ public class Ride {
     @ElementCollection
     private List<Long> passengerIds;
     private LocalDateTime rideTime;
+    private LocalDateTime creationTime = LocalDateTime.now();
 }
