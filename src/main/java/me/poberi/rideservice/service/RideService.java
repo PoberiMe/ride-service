@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import me.poberi.rideservice.dto.Location;
 import me.poberi.rideservice.dto.RideRequest;
 import me.poberi.rideservice.dto.RideResponse;
+import me.poberi.rideservice.exception.RideNotFoundException;
 import me.poberi.rideservice.model.Ride;
 import me.poberi.rideservice.repository.RideRepository;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,6 +64,14 @@ public class RideService {
 
     private Location toLocation(Point point) {
         if (point == null) return null;
-        return new Location(point.getY(), point.getX()); // lat = Y, lon = X
+        return new Location(point.getY(), point.getX());
+    }
+
+    public Ride addPassengerToRide(Long rideId, Long passengerId) {
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new RideNotFoundException("Ride not found"));
+
+        ride.getPassengerIds().add(passengerId);
+        return rideRepository.save(ride);
     }
 }
