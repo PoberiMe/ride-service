@@ -1,17 +1,17 @@
 package me.poberi.rideservice.service;
 
 import lombok.RequiredArgsConstructor;
-import me.poberi.rideservice.dto.Location;
 import me.poberi.rideservice.dto.RideRequest;
 import me.poberi.rideservice.dto.RideResponse;
+import me.poberi.rideservice.exception.PassengerAlreadyInRideException;
 import me.poberi.rideservice.exception.RideNotFoundException;
+import me.poberi.rideservice.mapper.RideMapper;
 import me.poberi.rideservice.model.Ride;
 import me.poberi.rideservice.repository.RideRepository;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,10 +21,11 @@ import java.util.List;
 public class RideService {
 
     private final RideRepository rideRepository;
+    private final RideMapper rideMapper;
 
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
-    public void createRide(RideRequest request) {
+    public RideResponse createRide(RideRequest request) {
 
         Point startLocation = geometryFactory.createPoint(
                 new Coordinate(request.startLocation().latitude(),
@@ -41,37 +42,25 @@ public class RideService {
         ride.setPassengerIds(request.passengerIds());
         ride.setRideTime(request.rideTime());
 
-        rideRepository.save(ride);
+        return rideMapper.toResponse(rideRepository.save(ride));
     }
 
     public List<RideResponse> getAllRides() {
-        List<Ride> rides = rideRepository.findAll();
-
-        return rides.stream().map(this::mapToRideResponse).toList();
+        return rideRepository
+                .findAll().stream()
+                .map(rideMapper::toResponse)
+                .toList();
     }
 
-    private RideResponse mapToRideResponse(Ride ride) {
-        return RideResponse.builder()
-                .id(ride.getId())
-                .driverId(ride.getDriverId())
-                .startLocation(toLocation(ride.getStartLocation()))
-                .endLocation(toLocation(ride.getEndLocation()))
-                .passengerIds(ride.getPassengerIds())
-                .rideTime(ride.getRideTime())
-                .creationTime(ride.getCreationTime())
-                .build();
-    }
-
-    private Location toLocation(Point point) {
-        if (point == null) return null;
-        return new Location(point.getY(), point.getX());
-    }
-
-    public Ride addPassengerToRide(Long rideId, Long passengerId) {
+    public RideResponse addPassengerToRide(Long rideId, Long passengerId) {
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new RideNotFoundException("Ride not found"));
 
+        if (ride.getPassengerIds().contains(passengerId)) {
+            throw new PassengerAlreadyInRideException("Passenger already exists in ride " +  rideId);
+        }
+
         ride.getPassengerIds().add(passengerId);
-        return rideRepository.save(ride);
+        return rideMapper.toResponse(rideRepository.save(ride));
     }
 }

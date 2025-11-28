@@ -20,6 +20,15 @@ public class GlobalExceptionHandler {
         return body;
     }
 
+    @ExceptionHandler(PassengerAlreadyInRideException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, Object> handlePassengerAlreadyInRideException(PassengerAlreadyInRideException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", ex.getMessage());
+        body.put("status", 409);
+        return body;
+    }
+
     // handles all 500 errors without showing stacktrace
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
