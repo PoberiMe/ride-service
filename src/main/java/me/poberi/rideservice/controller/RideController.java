@@ -29,8 +29,17 @@ public class RideController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<RideResponse> getRides() {
+    public List<RideResponse> getRides(@RequestParam(required = false) Long passengerId) {
+        if (passengerId != null) {
+            return rideService.getAllRidesByPassenger(passengerId);
+        }
         return rideService.getAllRides();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public RideResponse getRide(@PathVariable Long id) {
+        return rideService.getRide(id);
     }
 
     @PatchMapping("/{rideId}/passengers/{passengerId}")

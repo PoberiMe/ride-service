@@ -48,8 +48,22 @@ public class RideService {
     public List<RideResponse> getAllRides() {
         return rideRepository
                 .findAll().stream()
-                .map(rideMapper::toResponse)
-                .toList();
+                .map(rideMapper::toResponse).toList();
+    }
+
+    public RideResponse getRide(Long id) {
+        return rideMapper.toResponse(
+                rideRepository
+                        .findById(id)
+                        .orElseThrow(() -> new RideNotFoundException("Ride not found"))
+        );
+    }
+
+    public List<RideResponse> getAllRidesByDriver(Long driverId) {
+        List<Ride> rides = rideRepository.findByDriverId(driverId);
+
+        return rides.stream()
+                .map(rideMapper::toResponse).toList();
     }
 
     public RideResponse addPassengerToRide(Long rideId, Long passengerId) {
@@ -62,5 +76,12 @@ public class RideService {
 
         ride.getPassengerIds().add(passengerId);
         return rideMapper.toResponse(rideRepository.save(ride));
+    }
+
+    public List<RideResponse> getAllRidesByPassenger(Long passengerId) {
+        List<Ride> rides = rideRepository.findByPassengerIdsContaining(passengerId);
+        return rides.stream()
+                .map(rideMapper::toResponse)
+                .toList();
     }
 }
