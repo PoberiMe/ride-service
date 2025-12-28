@@ -50,4 +50,10 @@ public class RideController {
         RideResponse response = rideService.addPassengerToRide(rideId, passengerId);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRide(@PathVariable Long id) {
+        rideService.deleteRide(id);
+        return ResponseEntity.noContent().build(); // 204 No Content
+    }
 }

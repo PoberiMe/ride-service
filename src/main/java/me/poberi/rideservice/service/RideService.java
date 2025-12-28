@@ -13,8 +13,10 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -22,27 +24,46 @@ public class RideService {
 
     private final RideRepository rideRepository;
     private final RideMapper rideMapper;
+    private final RestTemplate restTemplate;
 
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     public RideResponse createRide(RideRequest request) {
 
         Point startLocation = geometryFactory.createPoint(
-                new Coordinate(request.startLocation().latitude(),
-                               request.startLocation().longitude()));
+                new Coordinate(request.getStartLocation().getLongitude(),
+                        request.getStartLocation().getLatitude()));
 
         Point endLocation = geometryFactory.createPoint(
-                new Coordinate(request.endLocation().latitude(),
-                               request.endLocation().longitude()));
+                new Coordinate(request.getEndLocation().getLongitude(),
+                        request.getEndLocation().getLatitude()));
 
-        Ride ride = new Ride();
-        ride.setDriverId(request.driverId());
-        ride.setStartLocation(startLocation);
-        ride.setEndLocation(endLocation);
-        ride.setPassengerIds(request.passengerIds());
-        ride.setRideTime(request.rideTime());
+        Ride rideEntity = new Ride();
+        rideEntity.setDriverId(request.getDriverId());
+        rideEntity.setStartLocation(startLocation);
+        rideEntity.setEndLocation(endLocation);
+        rideEntity.setPassengerIds(request.getPassengerIds());
+        rideEntity.setRideTime(request.getRideTime());
 
-        return rideMapper.toResponse(rideRepository.save(ride));
+        Ride ride = rideRepository.save(rideEntity);
+
+        Map<String, Object> routeRequest = Map.of(
+                "startLocation", Map.of(
+                        "latitude", request.getStartLocation().getLatitude(),
+                        "longitude", request.getStartLocation().getLongitude()
+                ),
+                "endLocation", Map.of(
+                        "latitude", request.getEndLocation().getLatitude(),
+                        "longitude", request.getEndLocation().getLongitude()
+                ),
+                "startTime", request.getRideTime().toString(),
+                "rideId", ride.getId()  // <-- link to the saved ride
+        );
+
+        String routeServiceUrl = "http://route-service:8080/routes";
+        restTemplate.postForObject(routeServiceUrl, routeRequest, Void.class);
+
+        return rideMapper.toResponse(ride);
     }
 
     public List<RideResponse> getAllRides() {
@@ -83,5 +104,11 @@ public class RideService {
         return rides.stream()
                 .map(rideMapper::toResponse)
                 .toList();
+    }
+
+    public void deleteRide(Long id) {
+        Ride ride = rideRepository.findById(id)
+                .orElseThrow(() -> new RideNotFoundException("Ride not found"));
+        rideRepository.delete(ride);
     }
 }

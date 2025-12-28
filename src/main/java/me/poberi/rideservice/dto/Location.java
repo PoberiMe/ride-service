@@ -1,6 +1,14 @@
 package me.poberi.rideservice.dto;
 
-public record Location(
-        double latitude,
-        double longitude
-) {}
+import lombok.*;
+
+@Data
+@Builder
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Location{
+    double latitude;
+    double longitude;
+}
+
