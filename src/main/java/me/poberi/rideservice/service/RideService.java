@@ -31,12 +31,12 @@ public class RideService {
     public RideResponse createRide(RideRequest request) {
 
         Point startLocation = geometryFactory.createPoint(
-                new Coordinate(request.getStartLocation().getLongitude(),
-                        request.getStartLocation().getLatitude()));
+                new Coordinate(request.getStartLocation().getLng(),
+                        request.getStartLocation().getLat()));
 
         Point endLocation = geometryFactory.createPoint(
-                new Coordinate(request.getEndLocation().getLongitude(),
-                        request.getEndLocation().getLatitude()));
+                new Coordinate(request.getEndLocation().getLng(),
+                        request.getEndLocation().getLat()));
 
         Ride rideEntity = new Ride();
         rideEntity.setDriverId(request.getDriverId());
@@ -49,15 +49,15 @@ public class RideService {
 
         Map<String, Object> routeRequest = Map.of(
                 "startLocation", Map.of(
-                        "latitude", request.getStartLocation().getLatitude(),
-                        "longitude", request.getStartLocation().getLongitude()
+                        "lat", request.getStartLocation().getLat(),
+                        "lng", request.getStartLocation().getLng()
                 ),
                 "endLocation", Map.of(
-                        "latitude", request.getEndLocation().getLatitude(),
-                        "longitude", request.getEndLocation().getLongitude()
+                        "lat", request.getEndLocation().getLat(),
+                        "lng", request.getEndLocation().getLng()
                 ),
                 "startTime", request.getRideTime().toString(),
-                "rideId", ride.getId()  // <-- link to the saved ride
+                "rideId", ride.getId()
         );
 
         String routeServiceUrl = "http://route-service:8080/routes";
