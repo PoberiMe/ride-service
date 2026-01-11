@@ -14,16 +14,19 @@ public class RideMapper {
                 ride.getId(),
                 ride.getDriverId(),
                 toLocation(ride.getStartLocation()),
+                ride.getStartName(),
                 toLocation(ride.getEndLocation()),
+                ride.getEndName(),
                 ride.getPassengerIds(),
                 ride.getRideTime(),
-                ride.getCreationTime()
+                ride.getCreationTime(),
+                ride.getCapacity()
         );
     }
 
     private Location toLocation(Point point) {
         return new Location(
-                point.getY(), // latitude
+                point.getY(), // lat
                 point.getX()
         );
     }

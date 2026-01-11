@@ -28,10 +28,13 @@ public class Ride {
     private Long driverId;
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point startLocation;
+    private String startName;
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point endLocation;
+    private String endName;
     @ElementCollection
     private List<Long> passengerIds;
     private LocalDateTime rideTime;
     private LocalDateTime creationTime = LocalDateTime.now();
+    private int capacity;
 }

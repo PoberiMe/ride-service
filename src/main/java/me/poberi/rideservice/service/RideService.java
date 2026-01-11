@@ -12,6 +12,8 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -44,6 +46,9 @@ public class RideService {
         rideEntity.setEndLocation(endLocation);
         rideEntity.setPassengerIds(request.getPassengerIds());
         rideEntity.setRideTime(request.getRideTime());
+        rideEntity.setEndName(request.getEndName());
+        rideEntity.setStartName(request.getStartName());
+        rideEntity.setCapacity(request.getCapacity());
 
         Ride ride = rideRepository.save(rideEntity);
 
@@ -57,7 +62,9 @@ public class RideService {
                         "lng", request.getEndLocation().getLng()
                 ),
                 "startTime", request.getRideTime().toString(),
-                "rideId", ride.getId()
+                "rideId", ride.getId(),
+                "startName", ride.getStartName(),
+                "endName", ride.getEndName()
         );
 
         String routeServiceUrl = "http://route-service:8080/routes";
@@ -66,10 +73,10 @@ public class RideService {
         return rideMapper.toResponse(ride);
     }
 
-    public List<RideResponse> getAllRides() {
+    public Page<RideResponse> getAllRides(Pageable pageable) {
         return rideRepository
-                .findAll().stream()
-                .map(rideMapper::toResponse).toList();
+                .findAll(pageable)
+                .map(rideMapper::toResponse);
     }
 
     public RideResponse getRide(Long id) {
@@ -99,11 +106,22 @@ public class RideService {
         return rideMapper.toResponse(rideRepository.save(ride));
     }
 
-    public List<RideResponse> getAllRidesByPassenger(Long passengerId) {
-        List<Ride> rides = rideRepository.findByPassengerIdsContaining(passengerId);
-        return rides.stream()
-                .map(rideMapper::toResponse)
-                .toList();
+    public RideResponse removePassengerFromRide(Long rideId, Long passengerId) {
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new RideNotFoundException("Ride not found"));
+
+        if (!ride.getPassengerIds().contains(passengerId)) {
+            throw new PassengerAlreadyInRideException("Passenger not in ride " + rideId);
+        }
+
+        ride.getPassengerIds().remove(passengerId);
+        return rideMapper.toResponse(rideRepository.save(ride));
+    }
+
+    public Page<RideResponse> getAllRidesByPassenger(Long passengerId, Pageable pageable) {
+        return rideRepository
+                .findByPassengerIdsContaining(passengerId, pageable)
+                .map(rideMapper::toResponse);
     }
 
     public void deleteRide(Long id) {

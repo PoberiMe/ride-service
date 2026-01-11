@@ -13,8 +13,11 @@ import java.util.List;
 public class RideRequest {
     private Long driverId;
     private Location startLocation;
+    private String startName;
     private Location endLocation;
+    private String endName;
     private List<Long> passengerIds;
     private LocalDateTime rideTime;
+    private int capacity;
 }
 

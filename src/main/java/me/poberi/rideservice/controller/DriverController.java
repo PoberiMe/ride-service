@@ -15,10 +15,5 @@ public class DriverController {
 
     private final RideService rideService;
 
-    @GetMapping("/{driverId}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<RideResponse> getRidesByDriver(@PathVariable Long driverId) {
-        return rideService.getAllRidesByDriver(driverId);
-    }
-
+    // TODO verjetno ne rabim vec tega ctrl
 }

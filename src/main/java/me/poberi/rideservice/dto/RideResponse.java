@@ -14,9 +14,12 @@ public class RideResponse {
     private Long id;
     private Long driverId;
     private Location startLocation;
+    private String startName;
     private Location endLocation;
+    private String endName;
     private List<Long> passengerIds;
     private LocalDateTime rideTime;
     private LocalDateTime creationTime;
+    private int capacity;
 }
 
