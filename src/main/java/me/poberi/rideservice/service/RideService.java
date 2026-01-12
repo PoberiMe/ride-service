@@ -87,11 +87,10 @@ public class RideService {
         );
     }
 
-    public List<RideResponse> getAllRidesByDriver(Long driverId) {
-        List<Ride> rides = rideRepository.findByDriverId(driverId);
-
-        return rides.stream()
-                .map(rideMapper::toResponse).toList();
+    public Page<RideResponse> getAllRidesByDriver(Long driverId, Pageable pageable) {
+        return rideRepository
+                .findByDriverId(driverId, pageable)
+                .map(rideMapper::toResponse);
     }
 
     public RideResponse addPassengerToRide(Long rideId, Long passengerId) {

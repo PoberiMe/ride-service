@@ -78,7 +78,11 @@ public class RideController {
 
     @GetMapping("/drivers/{driverId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<RideResponse> getRidesByDriver(@PathVariable Long driverId) {
-        return rideService.getAllRidesByDriver(driverId);
+    public Page<RideResponse> getRidesByDriver(
+            @PathVariable Long driverId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return rideService.getAllRidesByDriver(driverId, PageRequest.of(page, size));
     }
 }
